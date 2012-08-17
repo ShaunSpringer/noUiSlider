@@ -19,6 +19,7 @@
           'callback'    : '',     // Callback to be triggered on release of dot. 
           'knobRelease' : '',     // rename for Callback
           'tracker'   : '',     // Callback to be triggered on every dot movement.
+          'complete'   : '',     // Called after move is done
           'clickmove'   : ''      // Callback to be triggered on movement by clicking. issue #9
         };
 
@@ -202,8 +203,7 @@
                         if ( typeof(options.tracker) == "function" ){ options.tracker.call(this); }
                       
                       });
-
-                      $(document).bind('mouseup.noUiSlider',function(){
+                      $(document).bind('mouseup',function(){
 
                         $(this).unbind('mousemove.noUiSlider');
                         knobs.removeClass('noUi_activeHandle');
@@ -211,8 +211,9 @@
 
                         if ( typeof(options.knobRelease) == "function" ){ options.knobRelease.call(element); }
                         if ( typeof(options.change) == "function" ){ options.change.call(element); }
+                        if ( typeof(options.tracker) == "function" ){ options.tracker.call(element); }
                         
-                        $(this).unbind('mouseup.noUiSlider');
+                        $(this).unbind('mouseup');
                       });
                     
                     });
@@ -262,7 +263,7 @@
                 },
                 
           move:   function move(){
-
+                  var self = this
                   var element = $(this);
 
                   var ok = false;
@@ -308,7 +309,15 @@
                     var newKnob1 = $(this).find('.noUi_lowerHandle');
                     var value1 = locToScale(element, settings.setTo[0], newKnob1, settings.scale);
                     if(settings.moveStyle=='animate'){
-                      newKnob1.animate({'left':value1}, {step: function(){if(settings.bar&&settings.bar!='off'){ rebuildMidBar(element); } if ( typeof(options.tracker) == "function" ){ options.tracker.call(this); }}});
+                      newKnob1.animate({'left':value1}, {
+                          step: function(){
+                            if(settings.bar&&settings.bar!='off'){ rebuildMidBar(element); } 
+                            if ( typeof(options.tracker) == "function" ){ options.tracker.call(self); }
+                          }
+                          , complete: function(){
+                            if ( typeof(options.complete) == "function" ){ options.complete.call(self); }
+                          }                     
+                      });
                     } else {
                       newKnob1.css('left',value1);
                     }
@@ -318,7 +327,15 @@
                     var newKnob2 = $(this).find('.noUi_upperHandle');
                     var value2 = locToScale(element, settings.setTo[1],  newKnob2, settings.scale );
                     if(settings.moveStyle=='animate'){
-                      newKnob2.animate({'left':value2}, {step: function(){if(settings.bar&&settings.bar!='off'){ rebuildMidBar(element); } if ( typeof(options.tracker) == "function" ){ options.tracker.call(this); }}});
+                      newKnob2.animate({'left':value2}, {
+                          step: function(){
+                            if(settings.bar&&settings.bar!='off'){ rebuildMidBar(element); } 
+                            if ( typeof(options.tracker) == "function" ){ options.tracker.call(self); }
+                          }
+                          , complete: function(){
+                            if ( typeof(options.complete) == "function" ){ options.complete.call(self); }
+                          }                     
+                      });
                     } else {
                       newKnob2.css('left',value2);
                     }
